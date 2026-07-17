@@ -1,0 +1,7 @@
+-- Migration number: 0001 	 2026-05-30T09:35:27.992Z
+CREATE TABLE IF NOT EXISTS logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  tag TEXT NOT NULL,
+  note TEXT,
+  created_at TEXT NOT NULL
+);
