@@ -4,13 +4,9 @@ export default {
 
     if (url.pathname === "/test") {
   return new Response("TEST ROUTE WORKS");
-  }
+    }
     if (url.pathname === "/") {
-      return new Response(getHomePage(), {
-        headers: {
-          "Content-Type": "text/html"
-        }
-      });
+      return getPointDirectoryPage(env);
     }
 
     if (url.pathname === "/api/log" && request.method === "POST") {
@@ -35,7 +31,12 @@ if (
 ) {
   return createPoint(request, env);
 }
-
+if (
+  url.pathname === "/api/point-addresses" &&
+  request.method === "POST"
+) {
+  return createPointAddress(request, env);
+}
     if (
       url.pathname.startsWith("/m/") &&
       request.method === "GET"
@@ -192,14 +193,7 @@ async function handlePointPage(request, env) {
   const markerCode =
     url.pathname.replace("/m/", "");
 
-  const point = await env.DB
-    .prepare(`
-      SELECT *
-      FROM points
-      WHERE marker_code = ?
-    `)
-    .bind(markerCode)
-    .first();
+  const point = await getPointByAddressCode(env, markerCode);
 
   if (!point) {
     return new Response(
@@ -318,6 +312,91 @@ async function createPoint(request, env) {
   }
 }
 
+async function createPointAddress(request, env) {
+  try {
+    const body = await request.json();
+
+    const pointId = Number(body.point_id);
+    const label = (body.label || "").trim();
+    const addressCode = slugifyLabel(body.address_code || label);
+    const status = body.status || "active";
+    const createdAt = new Date().toISOString();
+
+    if (!pointId) {
+      return Response.json(
+        { ok: false, error: "point_id is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!addressCode) {
+      return Response.json(
+        { ok: false, error: "address_code or label is required" },
+        { status: 400 }
+      );
+    }
+
+    const point = await env.DB
+      .prepare(`
+        SELECT id, label
+        FROM points
+        WHERE id = ?
+      `)
+      .bind(pointId)
+      .first();
+
+    if (!point) {
+      return Response.json(
+        { ok: false, error: "Point not found" },
+        { status: 404 }
+      );
+    }
+
+    await env.DB
+      .prepare(`
+        INSERT INTO point_addresses (
+          address_code,
+          point_id,
+          label,
+          status,
+          created_at
+        )
+        VALUES (?, ?, ?, ?, ?)
+      `)
+      .bind(
+        addressCode,
+        pointId,
+        label,
+        status,
+        createdAt
+      )
+      .run();
+
+    return Response.json({
+      ok: true,
+      address_code: addressCode,
+      point_id: pointId,
+      point_label: point.label,
+      label,
+      status,
+      landing_path: `/m/${addressCode}`,
+      created_at: createdAt
+    });
+  } catch (error) {
+    const duplicateAddress =
+      error.message && error.message.includes("UNIQUE");
+
+    return Response.json(
+      {
+        ok: false,
+        error: duplicateAddress
+          ? "That landing address already exists"
+          : error.message
+      },
+      { status: duplicateAddress ? 409 : 500 }
+    );
+  }
+}
 
 function getNewPointPage() {
   return `
@@ -523,47 +602,56 @@ function getPointPage(point, relationships = []) {
 <head>
   <title>${point.label}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px; line-height: 1.4; }
+    h1 { margin-bottom: 4px; }
+    input, button { display: block; width: 100%; box-sizing: border-box; padding: 14px; margin-bottom: 10px; font-size: 18px; }
+    button { cursor: pointer; }
+    .point-location { font-size: 18px; margin-top: 0; }
+    .point-meta, .small { color: #555; font-size: 13px; }
+    .tag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+    .tag-grid button { min-height: 70px; font-weight: bold; }
+    .log-card { border: 1px solid #ccc; border-radius: 8px; padding: 12px; margin: 10px 0; background: #f8f8f8; }
+    details { margin: 24px 0; }
+  </style>
 </head>
 <body>
 
 <h1>${point.label}</h1>
+<p class="point-location">${point.point_location || point.description || ""}</p>
+<p class="point-meta">Point ID: ${point.id}</p>
+<p class="point-meta">Landing address: ${point.resolved_address_code}</p>
+<p><a href="/">← All Points</a></p>
 
-<p>
-  <a href="/admin/points">← Back to Point List</a> |
-  <a href="/admin/points/new">Create Another Point</a>
-</p>
-
-<p><strong>Type:</strong> ${point.point_type}</p>
-<p><strong>Status:</strong> ${point.status}</p>
-<p><strong>Trust Code:</strong> ${point.trust_code}</p>
-<p>${point.description || ""}</p>
-
-<h2>Relationships</h2>
-<ul>
-  ${relationshipHtml}
-</ul>
-
-<p>
-  <a href="/admin/point-links/new">Create Relationship</a>
-</p>
-
-<hr>
-
-<h2>Log Something</h2>
-
+<h2>Log Activity</h2>
 <input id="noteInput" placeholder="Optional note">
 
-<button onclick="logToPoint('observation')">Observation</button>
-<button onclick="logToPoint('repair')">Repair</button>
-<button onclick="logToPoint('photo_needed')">Photo Needed</button>
-<button onclick="logToPoint('note')">Note</button>
+<div class="tag-grid">
+  <button onclick="logToPoint('programming')">Programming</button>
+  <button onclick="logToPoint('cleaning')">Cleaning</button>
+  <button onclick="logToPoint('property')">Property</button>
+  <button onclick="logToPoint('repair')">Repair</button>
+  <button onclick="logToPoint('communication')">Communication</button>
+  <button onclick="logToPoint('photo')">Photo</button>
+  <button onclick="logToPoint('break')">Break</button>
+  <button onclick="logToPoint('other')">Other</button>
+</div>
 
-<h2>Point History</h2>
 <button onclick="loadPointLogs()">Refresh Logs</button>
+<h2>Activity at this Point</h2>
 <div id="logList"></div>
 
+<details>
+  <summary>Point information</summary>
+  <p><strong>Type:</strong> ${point.point_type}</p>
+  <p><strong>Status:</strong> ${point.status}</p>
+  <p>${point.description || ""}</p>
+  <h3>Relationships</h3>
+  <ul>${relationshipHtml}</ul>
+</details>
+
 <script>
-  const markerCode = "${point.marker_code}";
+  const markerCode = "${point.resolved_address_code}";
 
   async function logToPoint(tag) {
     const note = document.getElementById("noteInput").value;
@@ -604,14 +692,13 @@ function getPointPage(point, relationships = []) {
 
     for (const log of result.logs) {
       const card = document.createElement("div");
-      card.style.border = "1px solid #ccc";
-      card.style.padding = "10px";
-      card.style.margin = "10px 0";
+      card.className = "log-card";
 
       card.innerHTML = \`
         <strong>\${log.tag}</strong>
         <p>\${log.note || ""}</p>
-        <small>\${new Date(log.created_at).toLocaleString()}</small>
+        <div class="small">\${new Date(log.created_at).toLocaleString()}</div>
+        <div class="small">\${log.created_at}</div>
       \`;
 
       logList.appendChild(card);
@@ -624,6 +711,38 @@ function getPointPage(point, relationships = []) {
 </body>
 </html>
 `;
+}
+
+async function getPointDirectoryPage(env) {
+  const points = await getAllPoints(env);
+  const cards = points.map(point => `
+    <a class="point-card" href="/m/${point.marker_code}">
+      <strong>${point.label}</strong>
+      <span>${point.point_location || point.point_type}</span>
+    </a>
+  `).join("");
+
+  return new Response(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Local Points</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px; }
+    .point-card { display: block; border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin: 12px 0; color: #111; text-decoration: none; }
+    .point-card strong, .point-card span { display: block; }
+    .point-card span { color: #555; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Local Points</h1>
+  <p>Select a location to view its interface and activity.</p>
+  ${cards || "<p>No points have been created yet.</p>"}
+  <p><a href="/admin/points/new">Create a Point</a></p>
+</body>
+</html>
+  `, { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
 
 function getHomePage() {
@@ -811,14 +930,20 @@ function getMarkerCodeFromPointApiPath(pathname, ending) {
     .replace(ending, "");
 }
 
-async function getPointByMarkerCode(env, markerCode) {
+async function getPointByAddressCode(env, addressCode) {
   return await env.DB
     .prepare(`
-      SELECT *
-      FROM points
-      WHERE marker_code = ?
+      SELECT
+        p.*,
+        pa.address_code AS resolved_address_code,
+        pa.label AS address_label
+      FROM point_addresses pa
+      JOIN points p
+        ON p.id = pa.point_id
+      WHERE pa.address_code = ?
+        AND pa.status = 'active'
     `)
-    .bind(markerCode)
+    .bind(addressCode)
     .first();
 }
 
@@ -831,7 +956,7 @@ async function createPointLog(request, env) {
       "/log"
     );
 
-    const point = await getPointByMarkerCode(env, markerCode);
+    const point = await getPointByAddressCode(env, markerCode);
 
     if (!point) {
       return Response.json(
@@ -888,7 +1013,7 @@ async function getPointLogs(request, env) {
     "/logs"
   );
 
-  const point = await getPointByMarkerCode(env, markerCode);
+  const point = await getPointByAddressCode(env, markerCode);
 
   if (!point) {
     return Response.json(
@@ -918,7 +1043,7 @@ async function getPointLogs(request, env) {
 async function getAllPoints(env) {
   const result = await env.DB
     .prepare(`
-      SELECT id, label, marker_code, point_type
+      SELECT id, label, marker_code, point_type, point_location
       FROM points
       ORDER BY label ASC
     `)
