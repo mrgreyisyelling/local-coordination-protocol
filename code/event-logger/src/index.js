@@ -81,12 +81,30 @@ if (
   return getAdminIndexPage();
 }
 
+if (
+  url.pathname === "/admin/point-addresses" &&
+  request.method === "GET"
+) {
+  return getPointAddressesAdminPage(env);
+}
+
+if (
+  url.pathname === "/admin/point-addresses/new" &&
+  request.method === "GET"
+) {
+  return getNewPointAddressPage(env);
+}
+
+
 if (url.pathname === "/admin/points" && request.method === "GET") {
   return getPointsAdminPage(env);
 }
 
         return new Response("Not found", { status: 404 });
   }
+
+
+
 };
 
 function isAuthorized(request, env) {
@@ -94,7 +112,76 @@ function isAuthorized(request, env) {
   return providedSecret && env.LOG_SECRET && providedSecret === env.LOG_SECRET;
 }
 
+async function getPointAddressesAdminPage(env) {
+  const { results } = await env.DB.prepare(`
+    SELECT
+      pa.id,
+      pa.address_code,
+      pa.label,
+      pa.status,
+      p.id AS point_id,
+      p.label AS point_label
+    FROM point_addresses pa
+    JOIN points p ON p.id = pa.point_id
+    ORDER BY pa.id
+  `).all();
 
+  const rows = results.map(address => `
+    <tr>
+      <td>${address.id}</td>
+      <td>
+        <a href="/m/${address.address_code}">
+          ${address.address_code}
+        </a>
+      </td>
+      <td>${address.label || "—"}</td>
+      <td>${address.status}</td>
+      <td>${address.point_label} (#${address.point_id})</td>
+    </tr>
+  `).join("");
+
+  return new Response(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Landing Addresses</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <h1>All Landing Addresses</h1>
+
+  <p>
+    <a href="/admin/point-addresses/new">
+      Create Landing Address
+    </a>
+  </p>
+
+  <table border="1" cellpadding="8">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Landing Address</th>
+        <th>Marker Label</th>
+        <th>Status</th>
+        <th>Assigned Point</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows || `
+        <tr>
+          <td colspan="5">No landing addresses exist yet.</td>
+        </tr>
+      `}
+    </tbody>
+  </table>
+</body>
+</html>
+  `, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8"
+    }
+  });
+}
 
 async function getPointsAdminPage(env) {
   const points = await getAllPoints(env);
@@ -396,6 +483,119 @@ async function createPointAddress(request, env) {
       { status: duplicateAddress ? 409 : 500 }
     );
   }
+}
+
+
+async function getNewPointAddressPage(env) {
+  const points = await getAllPoints(env);
+
+  const pointOptions = points.map(point => `
+    <option value="${point.id}">
+      ${point.label} — ${point.point_location || point.point_type}
+    </option>
+  `).join("");
+
+  return new Response(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Create Landing Address</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.4;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 16px;
+      margin-bottom: 5px;
+    }
+
+    input, select, button {
+      display: block;
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Create Landing Address</h1>
+
+  <p>
+    Create a routable address and associate it with an existing point.
+  </p>
+
+  <label for="pointId">Point</label>
+  <select id="pointId">
+    ${pointOptions}
+  </select>
+
+  <label for="label">Marker Label</label>
+  <input
+    id="label"
+    placeholder="119 Mifflin front-door QR"
+  >
+
+  <label for="addressCode">Landing Address</label>
+  <input
+    id="addressCode"
+    placeholder="119-mifflin-front-door"
+  >
+
+  <button onclick="createAddress()">
+    Create Landing Address
+  </button>
+
+  <pre id="result"></pre>
+
+  <script>
+    async function createAddress() {
+      const response = await fetch("/api/point-addresses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          point_id: document.getElementById("pointId").value,
+          label: document.getElementById("label").value,
+          address_code: document.getElementById("addressCode").value
+        })
+      });
+
+      const result = await response.json();
+
+      if (!result.ok) {
+        document.getElementById("result").textContent =
+          "Error: " + result.error;
+        return;
+      }
+
+      location.href = result.landing_path;
+    }
+  </script>
+</body>
+</html>
+  `, {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8"
+    }
+  });
 }
 
 function getNewPointPage() {

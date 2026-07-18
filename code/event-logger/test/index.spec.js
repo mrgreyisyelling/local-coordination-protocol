@@ -178,6 +178,64 @@ expect(markerPage).toContain(
     expect(page).toContain("119 Mifflin");
   });
 
+    it("lists landing addresses with their assigned points", async () => {
+    const pointResponse = await SELF.fetch(
+      "http://example.com/api/points",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          label: "Address Directory Point",
+          point_location: "119 Mifflin",
+          point_type: "house",
+          status: "draft",
+          description: "Point for the landing-address directory test"
+        }),
+      }
+    );
+
+    expect(pointResponse.status).toBe(200);
+    const point = await pointResponse.json();
+
+        const storedPoint = await env.DB
+      .prepare(`
+        SELECT id
+        FROM points
+        WHERE marker_code = ?
+      `)
+      .bind(point.marker_code)
+      .first();
+
+    expect(storedPoint.id).toEqual(expect.any(Number));
+
+    const addressResponse = await SELF.fetch(
+      "http://example.com/api/point-addresses",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          point_id: storedPoint.id,
+          address_code: "directory-office-front-door",
+          label: "Directory front-door QR"
+        }),
+      }
+    );
+
+    expect(addressResponse.status).toBe(200);
+
+    const response = await SELF.fetch(
+      "http://example.com/admin/point-addresses"
+    );
+    const page = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(page).toContain("All Landing Addresses");
+    expect(page).toContain("directory-office-front-door");
+    expect(page).toContain("Directory front-door QR");
+    expect(page).toContain("active");
+    expect(page).toContain("Address Directory Point");
+  });
+
   it("returns 404 for an unknown marker code", async () => {
     const response = await SELF.fetch(
       "http://example.com/m/not-a-real-point"
