@@ -18,8 +18,7 @@
 		{
 			"binding": "DB",
 			"database_name": "event_logger_db",
-			"database_id": "d00e14f0-a1b8-41aa-95ef-43ff18b3235d",
-			"remote": true
+			"database_id": "d00e14f0-a1b8-41aa-95ef-43ff18b3235d"
 		}
 	]
 	/**

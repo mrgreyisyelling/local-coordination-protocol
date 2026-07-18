@@ -14,6 +14,16 @@ beforeAll(async () => {
       FOREIGN KEY (point_id) REFERENCES points(id)
     )
   `).run();
+      await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS point_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      point_id INTEGER NOT NULL,
+      tag TEXT NOT NULL,
+      note TEXT,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (point_id) REFERENCES points(id)
+    )
+  `).run();
   await env.DB.prepare("CREATE TABLE IF NOT EXISTS point_links (id INTEGER PRIMARY KEY AUTOINCREMENT, from_point_id INTEGER NOT NULL, to_point_id INTEGER NOT NULL, relationship_type TEXT NOT NULL, note TEXT, created_at TEXT NOT NULL)").run();
 });
 
@@ -68,7 +78,7 @@ describe("Build 1 - Create a Point", () => {
     });
     const addressCode =
       `119-mifflin-front-door-${created.marker_code.slice(-8)}`;
-      
+
         const addressResponse = await SELF.fetch(
       "http://example.com/api/point-addresses",
       {
@@ -143,12 +153,28 @@ expect(markerPage).toContain(
   });
 
   it("lists points by address on the home page", async () => {
+        const createResponse = await SELF.fetch(
+      "http://example.com/api/points",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          label: "Directory Dingo",
+          point_location: "119 Mifflin",
+          point_type: "house",
+          status: "draft",
+          description: "Point created for the directory test"
+        }),
+      }
+    );
+
+    expect(createResponse.status).toBe(200);
     const response = await SELF.fetch("http://example.com/");
     const page = await response.text();
 
     expect(response.status).toBe(200);
     expect(page).toContain("Local Points");
-    expect(page).toContain("Dingo 1");
+    expect(page).toContain("Directory Dingo");
     expect(page).toContain("119 Mifflin");
   });
 
