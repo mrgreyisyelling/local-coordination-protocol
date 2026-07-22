@@ -1,0 +1,11 @@
+{
+  "name": "@lcp/domain",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "module",
+  "private": true
+}
