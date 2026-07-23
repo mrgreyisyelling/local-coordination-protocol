@@ -2,7 +2,10 @@
   "name": "@lcp/domain",
   "version": "1.0.0",
   "description": "",
-  "scripts": {},
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
   "keywords": [],
   "author": "",
   "license": "UNLICENSED",
