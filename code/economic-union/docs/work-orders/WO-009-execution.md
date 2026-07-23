@@ -1323,3 +1323,181 @@ Ran 1 test suite in 5.96ms (266.81µs CPU time): 1 tests passed, 0 failed, 0 ski
 
 **Status:** Foundry restoration complete locally.
 
+---
+
+## Step 17 — Run final local and remote verification
+
+**Commands and output:**
+
+```text
+$ npm ci
+
+added 53 packages, and audited 59 packages in 865ms
+
+18 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+$ npm run typecheck
+
+> @lcp/economic-union@1.0.0 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+> @lcp/protocol@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+$ npm run build
+
+> @lcp/economic-union@1.0.0 build
+> npm run build --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 build
+> tsc -p tsconfig.json
+
+
+> @lcp/protocol@1.0.0 build
+> tsc -p tsconfig.json
+
+
+$ npm test
+
+> @lcp/economic-union@1.0.0 test
+> npm run test --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 15:55:45
+[2m   Duration [22m 211ms[2m (transform 47ms, setup 0ms, import 62ms, tests 7ms, environment 0ms)[22m
+
+
+> @lcp/protocol@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/protocol[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 15:55:45
+[2m   Duration [22m 200ms[2m (transform 44ms, setup 0ms, import 60ms, tests 3ms, environment 0ms)[22m
+
+
+$ cd contracts && forge fmt --check
+
+$ cd contracts && forge build
+No files changed, compilation skipped
+
+$ cd contracts && forge test
+No files changed, compilation skipped
+
+Ran 1 test for test/Scaffold.t.sol:ScaffoldTest
+[PASS] testReturnsOne() (gas: 5756)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 497.79µs (61.95µs CPU time)
+
+Ran 1 test suite in 6.38ms (497.79µs CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)
+
+$ cd ../event-logger && npm test -- --run
+
+> event-logger@0.0.0 test
+> vitest --run
+
+
+ RUN  v3.2.4 /home/mike/code/local-coordination-protocol/code/event-logger
+
+Using secrets defined in .dev.vars
+[vpw:debug] Adding `enable_nodejs_tty_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_fs_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_http_modules` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_perf_hooks_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:info] Starting isolated runtimes for vitest.config.js...
+[mf:warn] The latest compatibility date supported by the installed Cloudflare Workers Runtime is "2026-03-10",
+but you've requested "2026-05-30". Falling back to "2026-03-10"...
+ ✓ test/index.spec.js (4 tests) 200ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  15:55:46
+   Duration  1.72s (transform 50ms, setup 0ms, collect 93ms, tests 200ms, environment 0ms, prepare 150ms)
+
+[vpw:debug] Shutting down runtimes...
+[vpw:debug] Disposing remote proxy sessions...
+
+$ gh run list --workflow economic-union-ci.yml --branch main --limit 5
+unknown flag: --branch
+
+Usage:  gh run list [flags]
+
+Flags:
+  -q, --jq expression     Filter JSON output using a jq expression
+      --json fields       Output JSON with the specified fields
+  -L, --limit int         Maximum number of runs to fetch (default 20)
+  -t, --template string   Format JSON output using a Go template
+  -w, --workflow string   Filter runs by workflow
+  
+---
+
+## Step 18 — Complete WO-009 and Review Gate 1
+
+## Total input
+
+- The Economic Union workspace from WO-005.
+- Strict TypeScript from WO-006.
+- Vitest from WO-007.
+- Foundry from WO-008.
+
+## Total output
+
+- One repository-level Economic Union CI workflow.
+- One independent TypeScript and Vitest job.
+- One independent Foundry job.
+- Explicitly disabled dependency caching.
+- Documented local requirements and observed versions.
+- One observed TypeScript CI failure and restoration.
+- One observed Foundry CI failure and restoration.
+- One final passing CI run.
+- Passing local TypeScript, Vitest, Foundry, and event-logger checks.
+- No Economic Union domain behavior.
+
+## Plan continuity
+
+- WO-010 remains integer value types.
+- WO-011 remains stable identifiers.
+- No later work order was pulled forward.
+
+## Review Gate 1
+
+The workspace builds cleanly locally and in GitHub Actions. The durable technical foundation exists before domain behavior begins.
+
+**Status:** WO-009 complete after the final execution-record commit.
+
+**Next:** WO-010 — Define integer value types.
+
+---
+
+## Final staging and commit
+
+**Commands and output:**
+
+```text
+$ git diff --cached --check
+code/economic-union/docs/work-orders/WO-009-execution.md:1455: trailing whitespace.
++  
