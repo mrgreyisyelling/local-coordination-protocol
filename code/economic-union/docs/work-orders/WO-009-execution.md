@@ -900,3 +900,161 @@ Do not use `git add code/economic-union` or `git add .`.
 
 **Pause:** Run the three commands printed below after replacing the test path.
 
+---
+
+## Step 13 — Observe the TypeScript CI failure
+
+**Temporary failing commit:** `8316a4cb11c1c8a35f3a5e59a3c389dd387e3b81`
+
+**Commands and output:**
+
+```text
+$ git show --name-status --format=oneline HEAD
+8316a4cb11c1c8a35f3a5e59a3c389dd387e3b81 test: prove TypeScript CI failure detection
+M	code/economic-union/docs/work-orders/WO-009-execution.md
+M	code/economic-union/packages/domain/src/index.test.ts
+
+$ gh run list --workflow economic-union-ci.yml --limit 20
+completed	failure	test: prove TypeScript CI failure detection	Economic Union CI	main	push	30038863227	17s	1m
+completed	success	Add Economic Union CI workflow	Economic Union CI	main	push	30036208263	21s	40m
+
+Selected run ID: 30038863227
+$ gh run watch 30038863227
+Run Economic Union CI (30038863227) has already completed with 'failure'
+
+$ gh run view 30038863227
+
+X main Economic Union CI · 30038863227
+Triggered via push about 1 minute ago
+
+JOBS
+✓ Foundry in 8s (ID 89313575498)
+X TypeScript and Vitest in 12s (ID 89313575596)
+  ✓ Set up job
+  ✓ Check out repository
+  ✓ Set up Node.js
+  ✓ Record Node.js and npm versions
+  ✓ Install locked npm dependencies
+  ✓ Type-check
+  ✓ Build
+  X Test
+  - Post Set up Node.js
+  ✓ Post Check out repository
+  ✓ Complete job
+
+ANNOTATIONS
+X Process completed with exit code 1.
+TypeScript and Vitest: .github#90
+
+X AssertionError: expected +0 to be 4 // Object.is equality
+
+- Expected
++ Received
+
+- 4
++ 0
+
+ ❯ src/index.test.ts:15:22
+
+
+TypeScript and Vitest: code/economic-union/packages/domain/src/index.test.ts#15
+
+
+To see what failed, try: gh run view 30038863227 --log-failed
+View this run on GitHub: https://github.com/mrgreyisyelling/local-coordination-protocol/actions/runs/30038863227
+```
+
+**Unexpected result:** The deliberately failing commit passed CI.
+
+---
+
+## Step 13 correction — Expected CI failure confirmed
+
+**Run ID:** `30038863227`
+
+**Reported workflow conclusion:** `failure`
+
+**Foundry:** Passed.
+
+**TypeScript and Vitest:** Failed during the Test step.
+
+**Correction:** The preceding “deliberately failing commit passed CI” statement was produced by incorrectly interpreting the exit status of `gh run watch`. The GitHub run itself conclusively failed as intended.
+
+**Status:** TypeScript CI failure detection confirmed.
+
+---
+
+## Step 14 — Restore the passing TypeScript assertion
+
+**Commands and output:**
+
+```text
+$ git restore --source=HEAD^ -- packages/domain/src/index.test.ts
+
+$ npm run typecheck
+
+> @lcp/economic-union@1.0.0 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+> @lcp/protocol@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+$ npm run build
+
+> @lcp/economic-union@1.0.0 build
+> npm run build --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 build
+> tsc -p tsconfig.json
+
+
+> @lcp/protocol@1.0.0 build
+> tsc -p tsconfig.json
+
+
+$ npm test
+
+> @lcp/economic-union@1.0.0 test
+> npm run test --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 15:42:27
+[2m   Duration [22m 187ms[2m (transform 49ms, setup 0ms, import 65ms, tests 7ms, environment 0ms)[22m
+
+
+> @lcp/protocol@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/protocol[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 15:42:27
+[2m   Duration [22m 155ms[2m (transform 29ms, setup 0ms, import 44ms, tests 4ms, environment 0ms)[22m
+
+```
+
+**Output:** The original TypeScript assertion is restored and all local TypeScript checks pass.
+
+**Status:** Step 14 local restoration complete.
+
