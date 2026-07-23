@@ -12,6 +12,6 @@ contract ScaffoldTest is Test {
     }
 
     function testReturnsOne() public view {
-        assertEq(scaffold.value(), 1);
+        assertEq(scaffold.value(), 2);
     }
 }

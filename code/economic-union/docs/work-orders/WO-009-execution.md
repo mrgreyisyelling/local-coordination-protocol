@@ -1058,3 +1058,122 @@ $ npm test
 
 **Status:** Step 14 local restoration complete.
 
+---
+
+## Step 14 — Restore TypeScript
+
+**Commands and output:**
+
+```text
+$ npm run typecheck
+
+> @lcp/economic-union@1.0.0 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+> @lcp/protocol@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+$ npm run build
+
+> @lcp/economic-union@1.0.0 build
+> npm run build --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 build
+> tsc -p tsconfig.json
+
+
+> @lcp/protocol@1.0.0 build
+> tsc -p tsconfig.json
+
+
+$ npm test
+
+> @lcp/economic-union@1.0.0 test
+> npm run test --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 15:42:52
+[2m   Duration [22m 152ms[2m (transform 25ms, setup 0ms, import 38ms, tests 6ms, environment 0ms)[22m
+
+
+> @lcp/protocol@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/protocol[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 15:42:52
+[2m   Duration [22m 147ms[2m (transform 20ms, setup 0ms, import 34ms, tests 3ms, environment 0ms)[22m
+
+```
+
+**Observed CI failure:** Add the actual failing run URL and confirm `TypeScript and Vitest` failed while `Foundry` passed.
+
+**Output:** The temporary TypeScript failure is restored and the local checks pass.
+
+**Status:** Step 14 verification complete.
+
+---
+
+## Step 15 — Prove Foundry failure detection
+
+**Temporary change:** In `contracts/test/Scaffold.t.sol`, change `assertEq(scaffold.value(), 1)` to expect `2`.
+
+**Restriction:** Change only that expected value.
+
+**Editor command:** `code contracts/test/Scaffold.t.sol`
+
+**Expected-failure command and output:**
+
+```text
+$ cd contracts && forge test --match-test testReturnsOne
+Compiling 1 files with Solc 0.8.30
+Solc 0.8.30 finished in 468.17ms
+Compiler run successful!
+
+Ran 1 test for test/Scaffold.t.sol:ScaffoldTest
+[FAIL: assertion failed: 1 != 2] testReturnsOne() (gas: 8840)
+Suite result: FAILED. 0 passed; 1 failed; 0 skipped; finished in 1.55ms (1.19ms CPU time)
+
+Ran 1 test suite in 13.11ms (1.55ms CPU time): 0 tests passed, 1 failed, 0 skipped (1 total tests)
+
+Failing tests:
+Encountered 1 failing test in test/Scaffold.t.sol:ScaffoldTest
+[FAIL: assertion failed: 1 != 2] testReturnsOne() (gas: 8840)
+
+Encountered a total of 1 failing tests, 0 tests succeeded
+
+Tip: Run `forge test --rerun` to retry only the 1 failed test
+```
+
+**Observed result:** Foundry returned a nonzero status and identified `testReturnsOne`.
+
+**Status:** Local Foundry failure detection confirmed.
+
+**Next:** Step 15C — Push the temporary failure.
+
+**Commands and output:**
+
+```text
+$ git add contracts/test/Scaffold.t.sol docs/work-orders/WO-009-execution.md
