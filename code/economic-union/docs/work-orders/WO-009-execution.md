@@ -1177,3 +1177,149 @@ Tip: Run `forge test --rerun` to retry only the 1 failed test
 
 ```text
 $ git add contracts/test/Scaffold.t.sol docs/work-orders/WO-009-execution.md
+
+$ git diff --cached --check
+
+$ git diff --cached --name-status
+M	code/economic-union/contracts/test/Scaffold.t.sol
+M	code/economic-union/docs/work-orders/WO-009-execution.md
+
+$ git commit -m "test: prove Foundry CI failure detection"
+[main 2c96c74] test: prove Foundry CI failure detection
+ 2 files changed, 120 insertions(+), 1 deletion(-)
+
+$ git push
+To github.com:mrgreyisyelling/local-coordination-protocol.git
+   ca927a1..2c96c74  main -> main
+```
+
+**Output:** The temporary Foundry failure is available to GitHub Actions.
+
+**Expected CI result:** `Foundry` fails while `TypeScript and Vitest` passes.
+
+---
+
+## Step 15 — Observe the Foundry CI failure
+
+**Temporary failing commit:** `2c96c7421562eb6688e09033a3c27e67c9c57de0`
+
+**Commands and output:**
+
+```text
+$ gh run list --workflow economic-union-ci.yml --limit 20
+completed	failure	test: prove Foundry CI failure detection	Economic Union CI	main	push	30039420310	17s	2m
+completed	success	Restore passing TypeScript CI	Economic Union CI	main	push	30039068298	13s	7m
+completed	failure	test: prove TypeScript CI failure detection	Economic Union CI	main	push	30038863227	17s	10m
+completed	success	Add Economic Union CI workflow	Economic Union CI	main	push	30036208263	21s	49m
+
+Selected run ID: 30039420310
+
+$ gh run watch 30039420310
+Run Economic Union CI (30039420310) has already completed with 'failure'
+
+$ gh run view 30039420310
+
+X main Economic Union CI · 30039420310
+Triggered via push about 2 minutes ago
+
+JOBS
+X Foundry in 10s (ID 89315396202)
+  ✓ Set up job
+  ✓ Check out repository
+  ✓ Install Foundry
+  ✓ Record Foundry versions
+  ✓ Check Solidity formatting
+  ✓ Build contracts
+  X Test contracts
+  - Post Install Foundry
+  ✓ Post Check out repository
+  ✓ Complete job
+✓ TypeScript and Vitest in 13s (ID 89315396220)
+
+ANNOTATIONS
+X Process completed with exit code 1.
+Foundry: .github#20
+
+
+To see what failed, try: gh run view 30039420310 --log-failed
+View this run on GitHub: https://github.com/mrgreyisyelling/local-coordination-protocol/actions/runs/30039420310
+Unknown JSON field: "jobs"
+Available fields:
+  conclusion
+  createdAt
+  databaseId
+  event
+  headBranch
+  headSha
+  name
+  status
+  updatedAt
+  url
+  workflowDatabaseId
+---
+
+## Step 16 — Restore Foundry
+
+**Commands and output:**
+
+```text
+$ cd contracts && forge fmt
+
+$ cd contracts && forge fmt --check
+
+$ cd contracts && forge build
+No files changed, compilation skipped
+
+$ cd contracts && forge test
+No files changed, compilation skipped
+
+Ran 1 test for test/Scaffold.t.sol:ScaffoldTest
+[FAIL: assertion failed: 1 != 2] testReturnsOne() (gas: 8840)
+Suite result: FAILED. 0 passed; 1 failed; 0 skipped; finished in 277.71µs (53.29µs CPU time)
+
+Ran 1 test suite in 5.87ms (277.71µs CPU time): 0 tests passed, 1 failed, 0 skipped (1 total tests)
+
+Failing tests:
+Encountered 1 failing test in test/Scaffold.t.sol:ScaffoldTest
+[FAIL: assertion failed: 1 != 2] testReturnsOne() (gas: 8840)
+
+Encountered a total of 1 failing tests, 0 tests succeeded
+
+Tip: Run `forge test --rerun` to retry only the 1 failed test
+---
+
+## Step 16 correction — Restore the Solidity assertion
+
+**Note:** The preceding Step 16 attempt did not execute `git restore`; the test still expected `2`.
+
+**Commands and output:**
+
+```text
+$ git restore --source=HEAD^ -- contracts/test/Scaffold.t.sol
+
+$ rg -n "assertEq" contracts/test/Scaffold.t.sol
+15:        assertEq(scaffold.value(), 1);
+
+$ cd contracts && forge fmt
+
+$ cd contracts && forge fmt --check
+
+$ cd contracts && forge build
+Compiling 1 files with Solc 0.8.30
+Solc 0.8.30 finished in 455.80ms
+Compiler run successful!
+
+$ cd contracts && forge test
+No files changed, compilation skipped
+
+Ran 1 test for test/Scaffold.t.sol:ScaffoldTest
+[PASS] testReturnsOne() (gas: 5756)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 266.81µs (39.11µs CPU time)
+
+Ran 1 test suite in 5.96ms (266.81µs CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)
+```
+
+**Output:** The Solidity test again expects `1`; formatting, build, and tests pass.
+
+**Status:** Foundry restoration complete locally.
+
