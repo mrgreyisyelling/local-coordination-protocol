@@ -1196,3 +1196,486 @@ $ npm run typecheck --workspace packages/domain
 
 **Next:** Step 9 — Prove fractional currency input is rejected.
 
+---
+
+## Step 9 — Prove fractional currency input is rejected
+
+**Input:** The passing focused runtime test suite.
+
+**Temporary action:** Change one focused test so it incorrectly requires `cents(10.5)` to succeed.
+
+**Expected result:** The focused test command must return a nonzero status.
+
+**Editor command:** `code packages/domain/src/value-types.test.ts`
+
+---
+
+## Step 9 — Prove fractional currency input is rejected
+
+**Input:** The passing focused runtime suite from Step 7 and the passing compile-time assertions from Step 8.
+
+**Temporary action:** Add one test that incorrectly expects `cents(10.5)` to return `10.5`.
+
+**Expected result:** The focused Vitest command must return a nonzero status because `cents(10.5)` throws an error.
+
+**Temporary test to add:**
+
+```typescript
+it("TEMPORARY: incorrectly accepts fractional cents", () => {
+  expect(cents(10.5)).toBe(10.5);
+});
+```
+
+**Editor command:** `code packages/domain/src/value-types.test.ts`
+
+**Temporary-test inspection:**
+
+```text
+$ rg -n "TEMPORARY: incorrectly accepts fractional cents" packages/domain/src/value-types.test.ts
+237:it("TEMPORARY: incorrectly accepts fractional cents", () => {
+```
+
+**Expected-failure command and output:**
+
+```text
+$ npm test --workspace packages/domain -- --run value-types.test.ts
+
+> @lcp/domain@1.0.0 test
+> vitest run --run value-types.test.ts
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [31m❯[39m src/value-types.test.ts [2m([22m[2m51 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 16[2mms[22m[39m
+     [32m✓[39m accepts zero and safe positive integers[32m 2[2mms[22m[39m
+     [32m✓[39m rejects invalid value -1[32m 1[2mms[22m[39m
+     [32m✓[39m rejects invalid value 0.5[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value NaN[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 9007199254740992[32m 0[2mms[22m[39m
+     [32m✓[39m adds cents[32m 0[2mms[22m[39m
+     [32m✓[39m subtracts cents[32m 0[2mms[22m[39m
+     [32m✓[39m rejects addition overflow[32m 0[2mms[22m[39m
+     [32m✓[39m rejects subtraction underflow[32m 0[2mms[22m[39m
+     [32m✓[39m compares cents[32m 0[2mms[22m[39m
+     [32m✓[39m accepts its minimum and maximum boundaries[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -1[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 10001[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 1.5[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value NaN[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 9007199254740992[32m 0[2mms[22m[39m
+     [32m✓[39m compares basis points[32m 2[2mms[22m[39m
+     [32m✓[39m accepts one as its minimum boundary[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -1[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 0[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 1.5[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value NaN[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 9007199254740992[32m 0[2mms[22m[39m
+     [32m✓[39m compares seniority positions[32m 0[2mms[22m[39m
+     [32m✓[39m accepts zero as its minimum boundary[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -1[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 0.5[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value NaN[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 9007199254740992[32m 0[2mms[22m[39m
+     [32m✓[39m increments an event sequence[32m 0[2mms[22m[39m
+     [32m✓[39m rejects increment overflow[32m 0[2mms[22m[39m
+     [32m✓[39m compares event sequences[32m 0[2mms[22m[39m
+     [32m✓[39m accepts zero as its minimum boundary[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -1[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 0.5[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value NaN[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value -Infinity[32m 0[2mms[22m[39m
+     [32m✓[39m rejects invalid value 9007199254740992[32m 0[2mms[22m[39m
+     [32m✓[39m increments a nonce[32m 0[2mms[22m[39m
+     [32m✓[39m rejects increment overflow[32m 0[2mms[22m[39m
+     [32m✓[39m compares nonces[32m 0[2mms[22m[39m
+[31m   [31m×[31m TEMPORARY: incorrectly accepts fractional cents[39m[32m 3[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/value-types.test.ts[2m > [22mTEMPORARY: incorrectly accepts fractional cents
+[31m[1mRangeError[22m: Cents must be a safe integer[39m
+[36m [2m❯[22m requireSafeInteger src/value-types.ts:[2m26:11[22m[39m
+    [90m 24|[39m )[33m:[39m [35mvoid[39m {
+    [90m 25|[39m   [35mif[39m ([33m![39m[33mNumber[39m[33m.[39m[34misSafeInteger[39m(value)) {
+    [90m 26|[39m     [35mthrow[39m [35mnew[39m [33mRangeError[39m([32m`[39m[36m${[39mname[36m}[39m[32m must be a safe integer`[39m)[33m;[39m
+    [90m   |[39m           [31m^[39m
+    [90m 27|[39m   }
+    [90m 28|[39m }
+[90m [2m❯[22m cents src/value-types.ts:[2m43:3[22m[39m
+[90m [2m❯[22m src/value-types.test.ts:[2m238:10[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m50 passed[39m[22m[90m (51)[39m
+[2m   Start at [22m 17:13:30
+[2m   Duration [22m 274ms[2m (transform 79ms, setup 0ms, import 99ms, tests 16ms, environment 0ms)[22m
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/mike/code/local-coordination-protocol/code/economic-union/packages/domain
+npm error workspace @lcp/domain@1.0.0
+npm error location /home/mike/code/local-coordination-protocol/code/economic-union/packages/domain
+npm error command failed
+npm error command sh -c vitest run --run value-types.test.ts
+```
+
+**Observed result:** Vitest returned a nonzero status because the temporary test incorrectly required fractional cents to succeed.
+
+**Status:** Expected failure confirmed; restoration is now required.
+
+**Next:** Step 9C — Remove the exact temporary test.
+
+**Input:** The confirmed expected failure from Step 9B.
+
+**Restoration action:** Delete only the temporary test added in Step 9A.
+
+**Delete this exact block:**
+
+```typescript
+it("TEMPORARY: incorrectly accepts fractional cents", () => {
+  expect(cents(10.5)).toBe(10.5);
+});
+```
+
+**Editor command:** `code packages/domain/src/value-types.test.ts`
+
+**Restoration inspection:**
+
+```text
+$ rg -n "TEMPORARY: incorrectly accepts fractional cents" packages/domain/src/value-types.test.ts
+[temporary test not found]
+```
+
+**Restored-suite command and output:**
+
+```text
+$ npm test --workspace packages/domain -- --run value-types.test.ts
+
+> @lcp/domain@1.0.0 test
+> vitest run --run value-types.test.ts
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [32m✓[39m src/value-types.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m50 passed[39m[22m[90m (50)[39m
+[2m   Start at [22m 17:14:07
+[2m   Duration [22m 253ms[2m (transform 77ms, setup 0ms, import 97ms, tests 11ms, environment 0ms)[22m
+
+```
+
+**Output:** The temporary incorrect expectation is absent and the complete focused value-type suite passes again.
+
+**Status:** Step 9 complete.
+
+**Next:** Step 10 — Verify the complete domain package.
+
+---
+
+## Step 10 — Verify the complete domain package
+
+**Input:** The restored implementation, exports, runtime tests, and compile-time tests.
+
+**Commands and output:**
+
+```text
+$ npm run typecheck --workspace packages/domain
+
+> @lcp/domain@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+$ npm run build --workspace packages/domain
+
+> @lcp/domain@1.0.0 build
+> tsc -p tsconfig.json
+
+
+$ npm test --workspace packages/domain
+
+> @lcp/domain@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/value-types.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m51 passed[39m[22m[90m (51)[39m
+[2m   Start at [22m 17:14:23
+[2m   Duration [22m 197ms[2m (transform 63ms, setup 0ms, import 91ms, tests 17ms, environment 0ms)[22m
+
+```
+
+**Output:** The complete domain package typechecks, builds, and passes all tests.
+
+**Status:** Step 10 complete.
+
+**Next:** Step 11 — Verify the complete workspace.
+
+---
+
+## Step 11 — Verify the complete workspace and Foundry scaffold
+
+**Input:** The passing domain package with the completed integer vocabulary.
+
+**Commands and output:**
+
+```text
+$ npm run typecheck
+
+> @lcp/economic-union@1.0.0 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+> @lcp/protocol@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+$ npm run build
+
+> @lcp/economic-union@1.0.0 build
+> npm run build --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 build
+> tsc -p tsconfig.json
+
+
+> @lcp/protocol@1.0.0 build
+> tsc -p tsconfig.json
+
+
+$ npm test
+
+> @lcp/economic-union@1.0.0 test
+> npm run test --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/value-types.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m51 passed[39m[22m[90m (51)[39m
+[2m   Start at [22m 17:14:40
+[2m   Duration [22m 214ms[2m (transform 78ms, setup 0ms, import 144ms, tests 15ms, environment 0ms)[22m
+
+
+> @lcp/protocol@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/protocol[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 17:14:40
+[2m   Duration [22m 214ms[2m (transform 53ms, setup 0ms, import 71ms, tests 3ms, environment 0ms)[22m
+
+
+$ cd contracts && forge fmt --check
+
+$ cd contracts && forge build
+No files changed, compilation skipped
+
+$ cd contracts && forge test
+No files changed, compilation skipped
+
+Ran 1 test for test/Scaffold.t.sol:ScaffoldTest
+[PASS] testReturnsOne() (gas: 5756)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 261.38µs (38.07µs CPU time)
+
+Ran 1 test suite in 6.92ms (261.38µs CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)
+```
+
+**Output:** The TypeScript workspace and independent Solidity environment remain green after WO-010.
+
+**Status:** Step 11 complete.
+
+**Next:** Step 12 — Retest the event logger.
+
+---
+
+## Step 12 — Retest the adjacent event logger
+
+**Input:** The complete passing WO-010 domain implementation.
+
+**Commands and output:**
+
+```text
+$ cd ../event-logger && npm test -- --run
+
+> event-logger@0.0.0 test
+> vitest --run
+
+
+ RUN  v3.2.4 /home/mike/code/local-coordination-protocol/code/event-logger
+
+Using secrets defined in .dev.vars
+[vpw:debug] Adding `enable_nodejs_tty_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_fs_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_http_modules` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_perf_hooks_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:info] Starting isolated runtimes for vitest.config.js...
+[mf:warn] The latest compatibility date supported by the installed Cloudflare Workers Runtime is "2026-03-10",
+but you've requested "2026-05-30". Falling back to "2026-03-10"...
+ ✓ test/index.spec.js (4 tests) 158ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  17:14:56
+   Duration  1.70s (transform 43ms, setup 0ms, collect 69ms, tests 158ms, environment 0ms, prepare 146ms)
+
+[vpw:debug] Shutting down runtimes...
+[vpw:debug] Disposing remote proxy sessions...
+```
+
+**Output:** The adjacent event logger remains green and independent of the new Economic Union value types.
+
+**Status:** Step 12 complete.
+
+**Next:** Step 13 — Inspect and summarize WO-010.
+
+---
+
+## Step 13 — Inspect and summarize WO-010
+
+**Input:** The verified integer value-type implementation and tests from Steps 1–12.
+
+**Repository inspection:**
+
+```text
+$ git status --short
+ M docs/work-orders/WO-010-execution.md
+ M packages/domain/src/value-types.test.ts
+
+$ git diff --check
+code/economic-union/packages/domain/src/value-types.test.ts:236: new blank line at EOF.
+---
+
+## Step 14 — Stage only WO-010
+
+**Input:** The reviewed integer value-type source, tests, exports, and execution record.
+
+**Action:** Stage only explicit WO-010 paths.
+
+**Staging commands and output:**
+
+```text
+$ git diff --cached --check
+code/economic-union/packages/domain/src/value-types.test.ts:236: new blank line at EOF.
+---
+
+## Step 15 — Final verification and commit authorization
+
+**Input:** The explicitly staged WO-010 implementation, tests, exports, and execution record.
+
+**Final verification:**
+
+```text
+$ cd code/economic-union && npm run typecheck
+
+> @lcp/economic-union@1.0.0 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+> @lcp/protocol@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+$ cd code/economic-union && npm run build
+
+> @lcp/economic-union@1.0.0 build
+> npm run build --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 build
+> tsc -p tsconfig.json
+
+
+> @lcp/protocol@1.0.0 build
+> tsc -p tsconfig.json
+
+
+$ cd code/economic-union && npm test
+
+> @lcp/economic-union@1.0.0 test
+> npm run test --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+ [32m✓[39m src/value-types.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m51 passed[39m[22m[90m (51)[39m
+[2m   Start at [22m 17:15:40
+[2m   Duration [22m 266ms[2m (transform 150ms, setup 0ms, import 190ms, tests 39ms, environment 0ms)[22m
+
+
+> @lcp/protocol@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/protocol[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 17:15:40
+[2m   Duration [22m 195ms[2m (transform 46ms, setup 0ms, import 61ms, tests 3ms, environment 0ms)[22m
+
+
+$ cd code/economic-union/contracts && forge fmt --check
+
+$ cd code/economic-union/contracts && forge build
+No files changed, compilation skipped
+
+$ cd code/economic-union/contracts && forge test
+No files changed, compilation skipped
+
+Ran 1 test for test/Scaffold.t.sol:ScaffoldTest
+[PASS] testReturnsOne() (gas: 5756)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 254.53µs (30.10µs CPU time)
+
+Ran 1 test suite in 8.80ms (254.53µs CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)
+
+$ git diff --cached --check
+code/economic-union/packages/domain/src/value-types.test.ts:236: new blank line at EOF.

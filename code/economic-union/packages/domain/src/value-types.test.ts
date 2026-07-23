@@ -233,3 +233,4 @@ describe("Nonce", () => {
     expect(compareNonces(nonce(3), nonce(2))).toBe(1);
   });
 });
+
