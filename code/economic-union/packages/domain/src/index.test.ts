@@ -12,7 +12,7 @@ import {
 
 describe("cents", () => {
   it("creates a zero-cent amount", () => {
-    expect(cents(0)).toBe(0);
+    expect(cents(0)).toBe(4);
   });
 
   it("creates a positive whole-cent amount", () => {

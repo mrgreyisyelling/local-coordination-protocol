@@ -606,3 +606,297 @@ A	code/economic-union/docs/work-orders/WO-009-execution.md
 
 **Next:** Step 11 — Commit and push the scaffold.
 
+---
+
+## Step 11 — Commit and push the passing CI scaffold
+
+**Commands and output:**
+
+```text
+$ git diff --cached --check
+code/economic-union/docs/work-orders/WO-009-execution.md:608: new blank line at EOF.
+---
+
+## Step 12 — Inspect the initial GitHub Actions run
+
+**Commands and output:**
+
+```text
+$ gh run list --workflow economic-union-ci.yml --branch main --limit 5
+Command 'gh' not found, but can be installed with:
+sudo apt install gh       # version 2.4.0+dfsg1-2, or
+sudo apt install gitsome  # version 0.8.0+ds-6ubuntu1
+---
+
+## Step 12 — Inspect the initial GitHub Actions run
+
+**Commands and output:**
+
+```text
+$ gh run list --workflow economic-union-ci.yml --branch main --limit 5
+unknown flag: --branch
+
+Usage:  gh run list [flags]
+
+Flags:
+  -q, --jq expression     Filter JSON output using a jq expression
+      --json fields       Output JSON with the specified fields
+  -L, --limit int         Maximum number of runs to fetch (default 20)
+  -t, --template string   Format JSON output using a Go template
+  -w, --workflow string   Filter runs by workflow
+
+---
+
+## Step 12 — Corrected GitHub Actions inspection
+
+**Note:** The previous attempt used an unsupported `--branch` flag and did not complete Step 12.
+
+**Commands and output:**
+
+```text
+$ git branch --show-current
+main
+
+$ gh run list --workflow economic-union-ci.yml --limit 20
+Welcome to GitHub CLI!
+
+To authenticate, please run `gh auth login`.
+
+$ select newest run for branch main
+Welcome to GitHub CLI!
+
+To authenticate, please run `gh auth login`.
+[no Economic Union CI run found for branch main]
+---
+
+## Step 12 — Corrected GitHub Actions inspection
+
+**Note:** The previous attempt used an unsupported `--branch` flag and did not complete Step 12.
+
+**Commands and output:**
+
+```text
+$ git branch --show-current
+main
+
+$ gh run list --workflow economic-union-ci.yml --limit 20
+Welcome to GitHub CLI!
+
+To authenticate, please run `gh auth login`.
+
+$ select newest run for branch main
+Welcome to GitHub CLI!
+
+To authenticate, please run `gh auth login`.
+[no Economic Union CI run found for branch main]
+---
+
+## Step 12 — Corrected GitHub Actions inspection
+
+**Note:** The previous attempt used an unsupported `--branch` flag and did not complete Step 12.
+
+**Commands and output:**
+
+```text
+$ git branch --show-current
+main
+
+$ gh run list --workflow economic-union-ci.yml --limit 20
+Welcome to GitHub CLI!
+
+To authenticate, please run `gh auth login`.
+
+$ select newest run for branch main
+Welcome to GitHub CLI!
+
+To authenticate, please run `gh auth login`.
+[no Economic Union CI run found for branch main]
+---
+
+## Step 12 — Corrected GitHub Actions inspection
+
+**Note:** The previous attempt used an unsupported `--branch` flag and did not complete Step 12.
+
+**Commands and output:**
+
+```text
+$ git branch --show-current
+main
+
+$ gh run list --workflow economic-union-ci.yml --limit 20
+failed to get runs: could not find any workflows named economic-union-ci.yml
+
+$ select newest run for branch main
+failed to get runs: could not find any workflows named economic-union-ci.yml
+[no Economic Union CI run found for branch main]
+# WO-009 — Continuous Integration Execution Record
+
+This file records the commands and actual output from WO-009.
+
+---
+
+## Step 1 — Verify the Economic Union directory
+
+**Commands and output:**
+
+```text
+$ pwd
+/home/mike/code/local-coordination-protocol
+
+$ test -f package.json
+---
+
+## Step 12 — Corrected GitHub Actions inspection
+
+**Note:** The previous attempt used an unsupported `--branch` flag and did not complete Step 12.
+
+**Commands and output:**
+
+```text
+$ git branch --show-current
+main
+
+$ gh run list --workflow economic-union-ci.yml --limit 20
+completed	success	Add Economic Union CI workflow	Economic Union CI	main	push	30036208263	21s	31m
+
+$ select newest run for branch main
+Selected run ID: 30036208263
+
+$ gh run watch 30036208263 --exit-status
+Run Economic Union CI (30036208263) has already completed with 'success'
+
+$ gh run view 30036208263
+
+✓ main Economic Union CI · 30036208263
+Triggered via push about 31 minutes ago
+
+JOBS
+✓ Foundry in 9s (ID 89304698606)
+✓ TypeScript and Vitest in 14s (ID 89304699066)
+
+For more information about a job, try: gh run view --job=<job-id>
+View this run on GitHub: https://github.com/mrgreyisyelling/local-coordination-protocol/actions/runs/30036208263
+```
+
+**Output:** The initial GitHub Actions run passed for the current branch.
+
+**Status:** Step 12 complete.
+
+**Next:** Step 13 — Prove TypeScript failure detection.
+
+---
+
+## Step 13 — Prove TypeScript failure detection
+
+**Commands and output:**
+
+```text
+$ find packages -type f matching *.test.ts or *.spec.ts
+packages/domain/src/index.test.ts
+packages/protocol/src/index.test.ts
+```
+
+**Action:** Open the existing trivial WO-007 test and change exactly one passing expected value to an incorrect value.
+
+**Restriction:** Do not add domain behavior and do not edit any other test.
+
+**Expected-failure command and output:**
+
+```text
+$ npm test
+
+> @lcp/economic-union@1.0.0 test
+> npm run test --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [31m❯[39m src/index.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 11[2mms[22m[39m
+[31m     [31m×[31m creates a zero-cent amount[39m[32m 6[2mms[22m[39m
+     [32m✓[39m creates a positive whole-cent amount[32m 0[2mms[22m[39m
+     [32m✓[39m rejects negative amounts[32m 1[2mms[22m[39m
+     [32m✓[39m rejects fractional cents[32m 0[2mms[22m[39m
+     [32m✓[39m rejects non-finite amounts[32m 0[2mms[22m[39m
+     [32m✓[39m rejects unsafe integers[32m 0[2mms[22m[39m
+     [32m✓[39m creates a zero position[32m 0[2mms[22m[39m
+     [32m✓[39m creates a positive position[32m 0[2mms[22m[39m
+     [32m✓[39m rejects negative positions[32m 0[2mms[22m[39m
+     [32m✓[39m rejects fractional positions[32m 0[2mms[22m[39m
+     [32m✓[39m describes a validated cent amount[32m 0[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/index.test.ts[2m > [22mcents[2m > [22mcreates a zero-cent amount
+[31m[1mAssertionError[22m: expected +0 to be 4 // Object.is equality[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- 4[39m
+[31m+ 0[39m
+
+[36m [2m❯[22m src/index.test.ts:[2m15:22[22m[39m
+    [90m 13|[39m [34mdescribe[39m([32m"cents"[39m[33m,[39m () [33m=>[39m {
+    [90m 14|[39m   [34mit[39m([32m"creates a zero-cent amount"[39m[33m,[39m () [33m=>[39m {
+    [90m 15|[39m     [34mexpect[39m([34mcents[39m([34m0[39m))[33m.[39m[34mtoBe[39m([34m4[39m)[33m;[39m
+    [90m   |[39m                      [31m^[39m
+    [90m 16|[39m   })[33m;[39m
+    [90m 17|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 15:35:57
+[2m   Duration [22m 215ms[2m (transform 54ms, setup 0ms, import 70ms, tests 11ms, environment 0ms)[22m
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /home/mike/code/local-coordination-protocol/code/economic-union/packages/domain
+npm error workspace @lcp/domain@1.0.0
+npm error location /home/mike/code/local-coordination-protocol/code/economic-union/packages/domain
+npm error command failed
+npm error command sh -c vitest run
+
+
+> @lcp/protocol@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/protocol[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 15:35:58
+[2m   Duration [22m 161ms[2m (transform 22ms, setup 0ms, import 34ms, tests 3ms, environment 0ms)[22m
+
+```
+
+**Observed result:** Vitest returned a nonzero status for the deliberately incorrect assertion.
+
+**Status:** Local TypeScript failure detection confirmed.
+
+**Next:** Step 13C — Push the temporary failure.
+
+**Temporary-failure staging and push:**
+
+```text
+$ git status --short
+MM docs/work-orders/WO-009-execution.md
+ M packages/domain/src/index.test.ts
+?? ../../docs/work-orders/
+
+Stage the one exact TypeScript test shown in Step 13A manually.
+Then stage: docs/work-orders/WO-009-execution.md
+Do not use `git add code/economic-union` or `git add .`.
+```
+
+**Pause:** Run the three commands printed below after replacing the test path.
+
