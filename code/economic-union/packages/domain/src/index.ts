@@ -7,3 +7,4 @@ export function describeAmount(amount: Cents): string {
 }
 
 export * from "./identifiers.js";
+export * from "./domain-errors.js";

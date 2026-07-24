@@ -63,12 +63,27 @@ function registerLifecycleTests<K extends LifecycleKind>(
             shouldAllow,
           );
 
+          const result = transitionStatus(kind, from, to);
+
           if (shouldAllow) {
-            expect(transitionStatus(kind, from, to)).toBe(to);
+            expect(result.ok).toBe(true);
+
+            if (result.ok) {
+              expect(result.value).toBe(to);
+            }
           } else {
-            expect(() =>
-              transitionStatus(kind, from, to),
-            ).toThrow(RangeError);
+            expect(result.ok).toBe(false);
+
+            if (!result.ok) {
+              expect(result.error.code).toBe(
+                "invalid-status-transition",
+              );
+              expect(result.error.details).toEqual({
+                lifecycle: kind,
+                from,
+                to,
+              });
+            }
           }
         }
       }

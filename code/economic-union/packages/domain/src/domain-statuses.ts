@@ -1,3 +1,12 @@
+import {
+  domainError,
+  domainFailure,
+  domainSuccess,
+  type DomainError,
+  type DomainResult,
+} from "./domain-errors.js";
+
+
 declare const propertyStatusBrand: unique symbol;
 declare const poolStatusBrand: unique symbol;
 declare const memberStatusBrand: unique symbol;
@@ -229,12 +238,23 @@ export function transitionStatus<K extends LifecycleKind>(
   kind: K,
   from: StatusByLifecycle[K],
   to: StatusByLifecycle[K],
-): StatusByLifecycle[K] {
+): DomainResult<
+  StatusByLifecycle[K],
+  DomainError<"invalid-status-transition">
+> {
   if (!canTransitionStatus(kind, from, to)) {
-    throw new RangeError(
-      `Cannot transition ${kind} status from ${from} to ${to}`,
+    return domainFailure(
+      domainError(
+        "invalid-status-transition",
+        `Cannot transition ${kind} status from ${from} to ${to}`,
+        {
+          lifecycle: kind,
+          from,
+          to,
+        },
+      ),
     );
   }
 
-  return to;
+  return domainSuccess(to);
 }

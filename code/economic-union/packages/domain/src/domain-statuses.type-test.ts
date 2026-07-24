@@ -31,7 +31,13 @@ canTransitionStatus(
   propertyActive,
   propertyStatus("suspended"),
 );
-transitionStatus("pool", poolOpen, poolFrozen);
+const poolTransition =
+  transitionStatus("pool", poolOpen, poolFrozen);
+
+if (poolTransition.ok) {
+  const nextPoolStatus: PoolStatus = poolTransition.value;
+  void nextPoolStatus;
+}
 allowedNextStatuses("member", memberActive);
 
 // @ts-expect-error Plain strings are not validated PropertyStatus values.
