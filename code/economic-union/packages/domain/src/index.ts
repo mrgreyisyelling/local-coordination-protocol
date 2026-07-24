@@ -11,3 +11,4 @@ export * from "./domain-errors.js";
 export * from "./canonical-scenarios.js";
 export * from "./properties.js";
 export * from "./valuations.js";
+export * from "./property-capacity.js";
