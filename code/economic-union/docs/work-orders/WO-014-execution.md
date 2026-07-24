@@ -1671,7 +1671,7 @@ index 6aef371..fe4e2da 100644
 +++ b/code/economic-union/packages/domain/src/index.ts
 @@ -7,4 +7,5 @@ export function describeAmount(amount: Cents): string {
  }
- 
+
  export * from "./identifiers.js";
 -export * from "./domain-errors.js";
 \ No newline at end of file
@@ -1713,7 +1713,7 @@ $ git add [nine explicit WO-014 paths]
 
 $ git diff --cached --check
 code/economic-union/docs/work-orders/WO-014-execution.md:1674: trailing whitespace.
-+ 
++
 ---
 
 ## Step 18 — Final verification and commit authorization
@@ -1747,3 +1747,27 @@ npm error command sh -c tsc -p tsconfig.test.json
 > @lcp/protocol@1.0.0 typecheck
 > tsc -p tsconfig.test.json
 
+---
+
+## Step 18 correction — Repair Node test-type configuration
+
+**Problem discovered:** The original final verification failed because
+`canonical-scenarios.test.ts` uses Node filesystem and URL APIs, but the domain
+test TypeScript configuration did not load Node type definitions. The original
+Step 18 script incorrectly continued and created commit `20efc00` after that
+failure.
+
+**Repair:**
+
+- Added `@types/node` to the domain package development dependencies.
+- Added `"node"` to `compilerOptions.types` in
+  `packages/domain/tsconfig.test.json`.
+- Preserved `"vitest/globals"` in the same type list.
+
+**Focused verification:**
+
+```text
+$ npm run typecheck --workspace packages/domain
+
+> @lcp/domain@1.0.0 typecheck
+> tsc -p tsconfig.test.json
