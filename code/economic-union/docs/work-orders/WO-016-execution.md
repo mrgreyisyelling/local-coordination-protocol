@@ -3473,3 +3473,13 @@ $ git diff --cached --stat
 **Output:** The complete WO-016 source, tests, export, TypeScript build-boundary repair, and final execution record are staged together.
 
 **Status:** WO-016 is authorized for commit if no unstaged WO-016 changes remain.
+---
+
+## Step 18 — Restage the final execution record and commit WO-016
+
+**Input:** The authorized WO-016 staged change plus the final Step 17 evidence appended to the execution record.
+
+**Commands and output:**
+
+```text
+$ git add docs/work-orders/WO-016-execution.md
