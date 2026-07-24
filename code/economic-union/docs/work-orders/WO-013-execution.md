@@ -2282,7 +2282,7 @@ index 7c552af..76806c4 100644
 @@ -63,12 +63,27 @@ function registerLifecycleTests<K extends LifecycleKind>(
              shouldAllow,
            );
- 
+
 +          const result = transitionStatus(kind, from, to);
 +
            if (shouldAllow) {
@@ -2352,7 +2352,7 @@ index c2ffca3..6b433c0 100644
 +      ),
      );
    }
- 
+
 -  return to;
 -}
 \ No newline at end of file
@@ -2375,7 +2375,7 @@ index f81ac26..724447c 100644
 +  void nextPoolStatus;
 +}
  allowedNextStatuses("member", memberActive);
- 
+
  // @ts-expect-error Plain strings are not validated PropertyStatus values.
 diff --git a/code/economic-union/packages/domain/src/index.ts b/code/economic-union/packages/domain/src/index.ts
 index 44c8ce1..6aef371 100644
@@ -2384,7 +2384,7 @@ index 44c8ce1..6aef371 100644
 @@ -6,4 +6,5 @@ export function describeAmount(amount: Cents): string {
    return `${amount} cents`;
  }
- 
+
 -export * from "./identifiers.js";
 \ No newline at end of file
 +export * from "./identifiers.js";
@@ -2428,13 +2428,13 @@ $ git add packages/domain/src/domain-errors.ts packages/domain/src/domain-errors
 
 $ git diff --cached --check
 code/economic-union/docs/work-orders/WO-013-execution.md:2285: trailing whitespace.
-+ 
++
 code/economic-union/docs/work-orders/WO-013-execution.md:2355: trailing whitespace.
-+ 
++
 code/economic-union/docs/work-orders/WO-013-execution.md:2378: trailing whitespace.
-+ 
++
 code/economic-union/docs/work-orders/WO-013-execution.md:2387: trailing whitespace.
-+ 
++
 code/economic-union/packages/domain/src/domain-errors.test.ts:172: new blank line at EOF.
 ---
 
@@ -2557,19 +2557,167 @@ $ rg -n "TEMPORARY:" packages/domain/src || true
 
 $ git diff --cached --check
 code/economic-union/docs/work-orders/WO-013-execution.md:2285: trailing whitespace.
-+ 
++
 code/economic-union/docs/work-orders/WO-013-execution.md:2355: trailing whitespace.
-+ 
++
 code/economic-union/docs/work-orders/WO-013-execution.md:2378: trailing whitespace.
-+ 
++
 code/economic-union/docs/work-orders/WO-013-execution.md:2387: trailing whitespace.
-+ 
++
 code/economic-union/docs/work-orders/WO-013-execution.md:2431: trailing whitespace.
-++ 
+++
 code/economic-union/docs/work-orders/WO-013-execution.md:2433: trailing whitespace.
-++ 
+++
 code/economic-union/docs/work-orders/WO-013-execution.md:2435: trailing whitespace.
-++ 
+++
 code/economic-union/docs/work-orders/WO-013-execution.md:2437: trailing whitespace.
-++ 
+++
 code/economic-union/packages/domain/src/domain-errors.test.ts:172: new blank line at EOF.
+---
+
+## Step 18 — Final verification and commit authorization
+
+**Input:** The explicitly staged WO-013 implementation, tests, integration, export, and execution record.
+
+**Final verification:**
+
+```text
+$ npm run typecheck
+
+> @lcp/economic-union@1.0.0 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+> @lcp/protocol@1.0.0 typecheck
+> tsc -p tsconfig.test.json
+
+
+$ npm run build
+
+> @lcp/economic-union@1.0.0 build
+> npm run build --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 build
+> tsc -p tsconfig.json
+
+
+> @lcp/protocol@1.0.0 build
+> tsc -p tsconfig.json
+
+
+$ npm test
+
+> @lcp/economic-union@1.0.0 test
+> npm run test --workspaces --if-present
+
+
+> @lcp/domain@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/domain[39m
+
+ [32m✓[39m src/domain-errors.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m src/domain-statuses.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32m✓[39m src/value-types.test.ts [2m([22m[2m50 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/identifiers.test.ts [2m([22m[2m93 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m168 passed[39m[22m[90m (168)[39m
+[2m   Start at [22m 20:44:02
+[2m   Duration [22m 321ms[2m (transform 532ms, setup 0ms, import 679ms, tests 66ms, environment 1ms)[22m
+
+
+> @lcp/protocol@1.0.0 test
+> vitest run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.10 [39m[90m/home/mike/code/local-coordination-protocol/code/economic-union/packages/protocol[39m
+
+ [32m✓[39m src/index.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 20:44:02
+[2m   Duration [22m 175ms[2m (transform 28ms, setup 0ms, import 40ms, tests 4ms, environment 0ms)[22m
+
+
+$ cd contracts && forge fmt --check
+
+$ cd contracts && forge build
+No files changed, compilation skipped
+
+$ cd contracts && forge test
+No files changed, compilation skipped
+
+Ran 1 test for test/Scaffold.t.sol:ScaffoldTest
+[PASS] testReturnsOne() (gas: 5756)
+Suite result: ok. 1 passed; 0 failed; 0 skipped; finished in 267.16µs (39.60µs CPU time)
+
+Ran 1 test suite in 5.83ms (267.16µs CPU time): 1 tests passed, 0 failed, 0 skipped (1 total tests)
+
+$ cd ../event-logger && npm test
+
+> event-logger@0.0.0 test
+> vitest
+
+
+ DEV  v3.2.4 /home/mike/code/local-coordination-protocol/code/event-logger
+
+Using secrets defined in .dev.vars
+[vpw:debug] Adding `enable_nodejs_tty_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_fs_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_http_modules` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:debug] Adding `enable_nodejs_perf_hooks_module` compatibility flag during tests as this feature is needed to support the Vitest runner.
+[vpw:info] Starting isolated runtimes for vitest.config.js...
+[mf:warn] The latest compatibility date supported by the installed Cloudflare Workers Runtime is "2026-03-10",
+but you've requested "2026-05-30". Falling back to "2026-03-10"...
+ ✓ test/index.spec.js (4 tests) 191ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  20:44:03
+   Duration  1.75s (transform 59ms, setup 0ms, collect 74ms, tests 191ms, environment 1ms, prepare 190ms)
+
+ PASS  Waiting for file changes...
+       press h to show help, press q to quit
+[vpw:debug] Shutting down runtimes...
+[vpw:debug] Disposing remote proxy sessions...
+
+$ rg -n "TEMPORARY:" packages/domain/src || true
+
+$ git diff --cached --check
+
+$ git diff --cached --stat
+ .../docs/work-orders/WO-013-execution.md           | 32 +++++++++++-----------
+ .../packages/domain/src/domain-errors.test.ts      |  2 --
+ 2 files changed, 16 insertions(+), 18 deletions(-)
+
+$ git status --short
+MM docs/work-orders/WO-013-execution.md
+M  packages/domain/src/domain-errors.test.ts
+```
+
+**Acceptance result:**
+
+- Stable expected-rejection codes exist and are unique.
+- Results discriminate success and failure with literal `ok` values.
+- Expected rejections carry a stable code and do not throw.
+- Invalid raw codes and empty constructed messages fail loudly.
+- Lifecycle rejection returns `invalid-status-transition` with structured context.
+- Runtime tests assert rule codes rather than fragile messages.
+- Compile-time tests prevent invalid codes, branch confusion, and mutation.
+- Domain package, full workspace, Foundry scaffold, and adjacent event logger pass.
+- No temporary failure remains.
+- Only intended WO-013 files are staged.
+
+**Status:** WO-013 is authorized for commit.
+
+**Next:** Commit WO-013, then begin WO-014 — Encode canonical scenarios as data.
+
