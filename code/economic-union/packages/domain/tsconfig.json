@@ -6,7 +6,8 @@
     "tsBuildInfoFile": "dist/.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
-  "exclude": [
-    "src/**/*.test.ts"
-  ]
+"exclude": [
+  "src/**/*.test.ts",
+  "src/**/*.type-test.ts"
+]
 }
