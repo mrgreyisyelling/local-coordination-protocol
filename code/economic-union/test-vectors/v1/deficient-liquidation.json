@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-deficient-liquidation-v1",
+  "title": "Canonical deficient liquidation",
+  "description": "Pooled proceeds pay the oldest 16000 of 17500 live claim cents.",
+  "inputs": {
+    "properties": [
+      {
+        "propertyId": "property-a",
+        "approvedValueCents": 50000000,
+        "seniorDebtCents": 10000000,
+        "expectedCapacityContributionCents": 20000000
+      },
+      {
+        "propertyId": "property-b",
+        "approvedValueCents": 30000000,
+        "seniorDebtCents": 5000000,
+        "expectedCapacityContributionCents": 13000000
+      }
+    ],
+    "members": [
+      {
+        "memberId": "member-alice",
+        "displayName": "Alice"
+      },
+      {
+        "memberId": "member-bob",
+        "displayName": "Bob"
+      },
+      {
+        "memberId": "member-carol",
+        "displayName": "Carol"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "sequence": 1,
+      "type": "property-recorded",
+      "propertyId": "property-a"
+    },
+    {
+      "sequence": 2,
+      "type": "property-recorded",
+      "propertyId": "property-b"
+    },
+    {
+      "sequence": 3,
+      "type": "deposit-recorded",
+      "memberId": "member-alice",
+      "amountCents": 10000,
+      "expectedSeniorityStart": 1,
+      "expectedSeniorityEnd": 10000
+    },
+    {
+      "sequence": 4,
+      "type": "deposit-recorded",
+      "memberId": "member-bob",
+      "amountCents": 5000,
+      "expectedSeniorityStart": 10001,
+      "expectedSeniorityEnd": 15000
+    },
+    {
+      "sequence": 5,
+      "type": "transfer-recorded",
+      "senderMemberId": "member-alice",
+      "recipientMemberId": "member-bob",
+      "amountCents": 2500,
+      "expectedSeniorityStart": 7501,
+      "expectedSeniorityEnd": 10000
+    },
+    {
+      "sequence": 6,
+      "type": "deposit-recorded",
+      "memberId": "member-carol",
+      "amountCents": 2500,
+      "expectedSeniorityStart": 15001,
+      "expectedSeniorityEnd": 17500
+    },
+    {
+      "sequence": 7,
+      "type": "liquidation-proceeds-recorded",
+      "amountCents": 16000
+    }
+  ],
+  "expected": {
+    "pooledCapacityCents": 33000000,
+    "issuedSupplyCents": 17500,
+    "liveSupplyBeforeLiquidationCents": 17500,
+    "preLiquidationBalances": [
+      {
+        "memberId": "member-alice",
+        "amountCents": 7500
+      },
+      {
+        "memberId": "member-bob",
+        "amountCents": 7500
+      },
+      {
+        "memberId": "member-carol",
+        "amountCents": 2500
+      }
+    ],
+    "preLiquidationIntervals": [
+      {
+        "memberId": "member-alice",
+        "start": 1,
+        "end": 7500,
+        "status": "live"
+      },
+      {
+        "memberId": "member-bob",
+        "start": 7501,
+        "end": 15000,
+        "status": "live"
+      },
+      {
+        "memberId": "member-carol",
+        "start": 15001,
+        "end": 17500,
+        "status": "live"
+      }
+    ],
+    "liquidation": {
+      "proceedsCents": 16000,
+      "tokenDistributions": [
+        {
+          "destinationId": "member-alice",
+          "destinationType": "member",
+          "amountCents": 7500
+        },
+        {
+          "destinationId": "member-bob",
+          "destinationType": "member",
+          "amountCents": 7500
+        },
+        {
+          "destinationId": "member-carol",
+          "destinationType": "member",
+          "amountCents": 1000
+        }
+      ],
+      "paidIntervals": [
+        {
+          "memberId": "member-alice",
+          "start": 1,
+          "end": 7500,
+          "status": "paid"
+        },
+        {
+          "memberId": "member-bob",
+          "start": 7501,
+          "end": 15000,
+          "status": "paid"
+        },
+        {
+          "memberId": "member-carol",
+          "start": 15001,
+          "end": 16000,
+          "status": "paid"
+        }
+      ],
+      "terminatedIntervals": [
+        {
+          "memberId": "member-carol",
+          "start": 16001,
+          "end": 17500,
+          "status": "terminated"
+        }
+      ],
+      "terminatedClaimsCents": 1500,
+      "homeownerSurplus": []
+    }
+  },
+  "invariantChecks": [
+    {
+      "invariantId": "INV-MONEY-001",
+      "assertion": "All monetary values are integer cents.",
+      "expected": true
+    },
+    {
+      "invariantId": "INV-CAPACITY-001",
+      "assertion": "The two property contributions total 33000000 cents.",
+      "expected": true
+    },
+    {
+      "invariantId": "INV-SUPPLY-001",
+      "assertion": "Issued supply and pre-liquidation live supply both equal 17500 cents.",
+      "expected": true
+    },
+    {
+      "invariantId": "INV-SENIORITY-001",
+      "assertion": "Live seniority positions are owned once without gaps or overlaps.",
+      "expected": true
+    },
+    {
+      "invariantId": "INV-TRANSFER-001",
+      "assertion": "Alice transfers her youngest 2500 positions to Bob.",
+      "expected": true
+    },
+    {
+      "invariantId": "INV-LIQUIDATION-001",
+      "assertion": "The oldest 16000 positions are paid before younger positions terminate.",
+      "expected": true
+    },
+    {
+      "invariantId": "INV-ACCOUNTING-001",
+      "assertion": "Token distributions total exactly 16000 cents of available proceeds.",
+      "expected": true
+    }
+  ]
+}

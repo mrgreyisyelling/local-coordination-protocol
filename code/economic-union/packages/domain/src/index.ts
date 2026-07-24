@@ -8,3 +8,4 @@ export function describeAmount(amount: Cents): string {
 
 export * from "./identifiers.js";
 export * from "./domain-errors.js";
+export * from "./canonical-scenarios.js";
