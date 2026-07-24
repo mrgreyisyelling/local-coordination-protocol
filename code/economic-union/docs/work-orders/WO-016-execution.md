@@ -3483,3 +3483,26 @@ $ git diff --cached --stat
 
 ```text
 $ git add docs/work-orders/WO-016-execution.md
+
+$ git diff --cached --check
+
+$ git diff --cached --name-only
+code/economic-union/docs/work-orders/WO-016-execution.md
+
+$ git commit -m "feat(domain): add append-only property valuations"
+[main 135e723] feat(domain): add append-only property valuations
+ 1 file changed, 10 insertions(+)
+
+$ git status --short
+ M docs/work-orders/WO-016-execution.md
+
+$ git log -1 --oneline --decorate
+135e723 (HEAD -> main) feat(domain): add append-only property valuations
+```
+
+**Output:** WO-016 is committed as one bounded append-only valuation change and the repository status is visible after commit.
+
+**Status:** WO-016 complete.
+
+**Next:** Update the progress tracker, then begin WO-017 — Implement property capacity contribution.
+
