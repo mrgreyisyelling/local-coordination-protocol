@@ -12,3 +12,5 @@ export * from "./canonical-scenarios.js";
 export * from "./properties.js";
 export * from "./valuations.js";
 export * from "./property-capacity.js";
+
+export * from "./union-backing-pool.js";
